@@ -1,6 +1,6 @@
 # Huijata
 
-Toolkit for inspecting and cheating at Noita (single-player game). Saves are
+Toolkit for inspecting and save editing in Noita (single-player game). Saves are
 plain files on disk, so snapshot/restore and inventory editing are done by
 reading/writing those files. Only affects the user's own copy of the game.
 
@@ -34,7 +34,7 @@ Meta-progression persists:
 
 ## Config
 
-`config/config.go` persists settings to `config.toml`:
+`internal/config/config.go` persists settings to `config.toml`:
 
 - Config file lives in `os.UserConfigDir()/huijata/config.toml` unless
   `HUIJATA_CONFIG_PATH` is set, in which case it's
@@ -52,7 +52,8 @@ writes the config.
   `main.go` loads `.env` with `godotenv` before running the CLI.
 - Stack: Go + `spf13/cobra` (CLI), `charmbracelet/huh` (interactive forms),
   `BurntSushi/toml` (config).
-- Layout: `cmd/` for cobra commands, `config/` for the config package.
+- Layout: `cmd/` for cobra commands, `internal/config/` for the config
+  package, `internal/snapshots/` for snapshot file logic.
 - Verify with `go build ./...`, `go test ./...`, `go vet ./...`.
 
 ## Planned

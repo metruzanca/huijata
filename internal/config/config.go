@@ -34,6 +34,16 @@ func Path() (string, error) {
 	return filepath.Join(dir, "huijata", "config.toml"), nil
 }
 
+// SnapshotsDir returns where save snapshots are stored, a snapshots folder
+// next to the config file.
+func SnapshotsDir() (string, error) {
+	path, err := Path()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(filepath.Dir(path), "snapshots"), nil
+}
+
 // Load reads the config file, returning nil if it does not exist yet.
 func Load() (*Config, error) {
 	path, err := Path()

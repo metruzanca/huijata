@@ -8,7 +8,7 @@ import (
 	"runtime"
 
 	"github.com/charmbracelet/huh"
-	"github.com/metruzanca/huijata/config"
+	"github.com/metruzanca/huijata/internal/config"
 	"github.com/spf13/cobra"
 )
 

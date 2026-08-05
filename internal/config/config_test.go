@@ -42,6 +42,20 @@ func TestPathEnvOverride(t *testing.T) {
 	}
 }
 
+func TestSnapshotsDir(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("HUIJATA_CONFIG_PATH", dir)
+
+	want := filepath.Join(dir, "snapshots")
+	got, err := SnapshotsDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("SnapshotsDir() = %q, want %q", got, want)
+	}
+}
+
 func TestSaveAndLoad(t *testing.T) {
 	t.Setenv("HUIJATA_CONFIG_PATH", "")
 	t.Setenv("APPDATA", t.TempDir())
