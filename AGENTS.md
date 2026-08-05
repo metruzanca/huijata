@@ -8,7 +8,8 @@ reading/writing those files. Only affects the user's own copy of the game.
 
 Noita stores its data in a folder named `Nolla_Games_Noita`:
 
-- Windows: `%LOCALAPPDATA%\Low\Nolla_Games_Noita\`
+- Windows: `%USERPROFILE%\AppData\LocalLow\Nolla_Games_Noita\` (LocalLow is
+  its own top-level AppData folder, not `Local\Low`)
 - Linux (Proton): `~/.local/share/Steam/steamapps/compatdata/881100/pfx/drive_c/users/steamuser/AppData/LocalLow/Nolla_Games_Noita/`
 - macOS (Proton): `~/Library/Application Support/Steam/steamapps/compatdata/881100/pfx/drive_c/users/steamuser/AppData/LocalLow/Nolla_Games_Noita/`
 

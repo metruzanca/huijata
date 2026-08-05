@@ -98,10 +98,7 @@ func defaultSavePath() string {
 	}
 	switch runtime.GOOS {
 	case "windows":
-		if local := os.Getenv("LOCALAPPDATA"); local != "" {
-			return filepath.Join(local, "Low", "Nolla_Games_Noita")
-		}
-		return filepath.Join(home, "AppData", "Local", "Low", "Nolla_Games_Noita")
+		return filepath.Join(home, "AppData", "LocalLow", "Nolla_Games_Noita")
 	case "darwin":
 		return filepath.Join(home, "Library", "Application Support", "Steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita")
 	default:
