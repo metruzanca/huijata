@@ -71,6 +71,32 @@ roll back the *current run*. See `docs/snapshots.md`.
 - Save file safety: only `save00` files listed in `RunFiles` are ever
   written/deleted.
 
+## Spell names
+
+`wands show` prints the player's spells by their in-game English name. Spell
+display names are not stored in the save: `player.xml` only holds internal
+action ids (e.g. `LIGHT_BULLET`, `MINE`). They are resolved at runtime from
+the installed game's own data by `internal/noitadata`:
+
+- `data.wak` (at `<install>/data/data.wak`) is a packed archive whose directory
+  (from byte 24) is `[u32 name_len][name][u32 off][u32 a]` per entry; an
+  entry's contents span `[previous entry's off, this entry's off)` (the first
+  starts at the header's data offset). Contents are plain text, zlib if the
+  first byte is `0x78`.
+- `data/scripts/gun/gun_actions.lua` (inside the wak) maps each action
+  `id = "X"` to a translation key `name = "$action_y"`. This is the
+  authoritative id→key mapping — do NOT guess it from the id (e.g.
+  `LIGHTNING_BOLT`→`$action_lightning`, `DISC_BULLET_BIGGER`→
+  `$action_omega_disc_bullet`). Some entries have a `"???"` placeholder
+  (`FUNKY_SPELL`); those simply don't resolve.
+- `data/translations/common.csv` (unpacked on disk) maps the key to the
+  English name (`action_light_bullet` → "Spark bolt").
+
+`internal/noitadata.SpellNames(installDir)` returns `id -> English name` for
+every resolvable spell; pass `""` to auto-detect the install dir (Steam
+default locations + `libraryfolders.vdf`, or `HUIJATA_NOITA_INSTALL`). Spells
+that don't resolve fall back to the raw id in `wands show`.
+
 ## Development
 
 - `.env` and `config.toml` are gitignored; in dev `.env` sets
@@ -79,7 +105,9 @@ roll back the *current run*. See `docs/snapshots.md`.
 - Stack: Go + `spf13/cobra` (CLI), `charmbracelet/huh` (interactive forms),
   `BurntSushi/toml` (config).
 - Layout: `cmd/` for cobra commands, `internal/config/` for the config
-  package, `internal/snapshots/` for snapshot file logic.
+  package, `internal/snapshots/` for snapshot file logic,
+  `internal/noitadata/` for game-data reading (wak, spell names),
+  `internal/player/` for player.xml parsing.
 - Verify with `go build ./...`, `go test ./...`, `go vet ./...`.
 
 ## Planned

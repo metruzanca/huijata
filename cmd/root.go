@@ -7,8 +7,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "huijata",
-	Short: "Huijata is a tool for the game noita",
+	Use:          "huijata",
+	Short:        "Huijata is a tool for the game noita",
+	SilenceUsage: true,
 }
 
 func Execute() {
