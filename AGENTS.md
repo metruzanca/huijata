@@ -92,6 +92,20 @@ the installed game's own data by `internal/noitadata`:
 - `data/translations/common.csv` (unpacked on disk) maps the key to the
   English name (`action_light_bullet` → "Spark bolt").
 
+Verified id → display-name examples (do not assume the display name from the
+id — it is frequently unrelated):
+
+- `LIGHT_BULLET` → "Spark bolt" (the starter wand's spell)
+- `MINE` → "Unstable crystal"
+- `RUBBER_BALL` → "Bouncing burst"
+- `BOMB` → "Bomb"
+- `LIGHTNING_BOLT` → "Lightning bolt" (via `$action_lightning`)
+
+`gun_actions.lua` has ~491 actions; the `id`/`name` pattern matches all but a
+few (`FUNKY_SPELL`'s name is a literal `"???"` placeholder), and `common.csv`
+holds 514 `action_*` keys — some keys resolve to names not present in
+`common.csv` at all, which is why the fallback to the raw id exists.
+
 `internal/noitadata.SpellNames(installDir)` returns `id -> English name` for
 every resolvable spell; pass `""` to auto-detect the install dir (Steam
 default locations + `libraryfolders.vdf`, or `HUIJATA_NOITA_INSTALL`). Spells
