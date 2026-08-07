@@ -9,8 +9,10 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/joho/godotenv"
 	"github.com/metruzanca/huijata/internal/config"
@@ -60,11 +62,21 @@ func (u *ui) build() {
 
 	u.list = widget.NewList(
 		func() int { return len(u.snaps) },
-		func() fyne.CanvasObject { return widget.NewLabel("snapshot") },
+		func() fyne.CanvasObject {
+			desc := widget.NewLabel("")
+			desc.Truncation = fyne.TextTruncateEllipsis
+			when := widget.NewLabel("")
+			when.Truncation = fyne.TextTruncateEllipsis
+			when.TextStyle = fyne.TextStyle{Monospace: true}
+			bg := canvas.NewRectangle(theme.Color(theme.ColorNameButton))
+			bg.CornerRadius = theme.Size(theme.SizeNameSelectionRadius)
+			return container.NewStack(bg, container.NewPadded(container.NewVBox(desc, when)))
+		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
-			label := obj.(*widget.Label)
 			s := u.snaps[id]
-			label.SetText(fmt.Sprintf("%s\n%s", s.Description, s.CreatedAt.Format("2006-01-02 15:04:05")))
+			box := obj.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
+			box.Objects[0].(*widget.Label).SetText(shortDesc(s.Description, 60))
+			box.Objects[1].(*widget.Label).SetText(s.CreatedAt.Format("2006-01-02 15:04:05"))
 		},
 	)
 	u.selected = -1
@@ -261,6 +273,14 @@ func (u *ui) saveConfig(path string) {
 
 func (u *ui) setStatus(msg string) {
 	u.status.SetText(msg)
+}
+
+func shortDesc(s string, max int) string {
+	r := []rune(strings.TrimSpace(s))
+	if len(r) <= max {
+		return string(r)
+	}
+	return string(r[:max-1]) + "…"
 }
 
 func (u *ui) setError(msg string) {
