@@ -69,6 +69,27 @@ etc.). `internal/stats.Parse` turns it into structs; `stats.Load` does the
 decrypt + parse from a save path. `internal/player` already handles
 `player.xml` the same way.
 
+## Sessions
+
+`huijata sessions` lists the runs recorded in `stats/sessions/`, newest
+first; `huijata sessions by-day` groups them by calendar day and prints a run
+count per day, busiest first. Each run is one `<timestamp>_stats.xml` file
+plus a matching `<timestamp>_kills.xml`, where the timestamp is the run's
+start time (`20060102-150405`). The timestamp is parsed from the file name,
+so grouping by day needs no timezone handling. `internal/stats.Sessions`
+scans the folder (a `_stats.xml` whose `<stats>` block holds the run's
+attributes).
+
+## Current run
+
+`huijata run` shows the current run's state: world seed and run stats from
+the newest session file (falling back to the `<session>` block of
+`stats/_stats.salakieli`), plus `WorldStateComponent` attributes of
+`world_state.xml` (day count, everything-to-gold / infinite-gold /
+sun-ending conditions) and the `progress_ngplus` / `progress_nightmare`
+`persistent/flags`. It requires an active run — `world_state.xml` must exist.
+`internal/worldstate.Load` parses it.
+
 ## Config
 
 `internal/config/config.go` persists settings to `config.toml`:
@@ -156,7 +177,8 @@ that don't resolve fall back to the raw id in `wands show`.
   package, `internal/snapshots/` for snapshot file logic,
   `internal/noitadata/` for game-data reading (wak, spell names),
   `internal/player/` for player.xml parsing, `internal/salakieli/` for
-  `.salakieli` decryption, `internal/stats/` for stats XML parsing.
+  `.salakieli` decryption, `internal/stats/` for stats and session XML
+  parsing, `internal/worldstate/` for world_state.xml parsing.
 - Verify with `go build ./...`, `go test ./...`, `go vet ./...`.
 
 ## Planned
