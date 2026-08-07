@@ -172,7 +172,7 @@ that don't resolve fall back to the raw id in `wands show`.
   `HUIJATA_CONFIG_PATH="."` so the config lives in the repo root.
   `main.go` loads `.env` with `godotenv` before running the CLI.
 - Stack: Go + `spf13/cobra` (CLI), `charmbracelet/huh` (interactive forms),
-  `BurntSushi/toml` (config).
+  `BurntSushi/toml` (config), `fyne.io/fyne/v2` (GUI).
 - Layout: `cmd/` for cobra commands, `internal/config/` for the config
   package, `internal/snapshots/` for snapshot file logic,
   `internal/noitadata/` for game-data reading (wak, spell names),
@@ -180,6 +180,26 @@ that don't resolve fall back to the raw id in `wands show`.
   `.salakieli` decryption, `internal/stats/` for stats and session XML
   parsing, `internal/worldstate/` for world_state.xml parsing.
 - Verify with `go build ./...`, `go test ./...`, `go vet ./...`.
+
+## GUI
+
+`gui/` is a separate Go module (its own `go.mod`) with a Fyne proof-of-concept
+frontend for save/restore that reuses `internal/config` and
+`internal/snapshots` unchanged, so it honors the same config file, env vars
+and `godotenv` loading as the CLI. It's a nested module with
+`replace github.com/metruzanca/huijata => ..`, so the root module's
+`go build/test/vet ./...` commands stay fyne/cgo-free.
+
+- The root CLI and the GUI read the same `config.toml` (see Config above);
+  no config sharing or conversion needed.
+- Fyne requires cgo on Windows. Install a mingw-w64 gcc (e.g.
+  `winget install BrechtSanders.WinLibs.POSIX.UCRT`) and make sure `gcc` is
+  on PATH and `CGO_ENABLED=1`.
+- Because `gui/` is its own module, run it from inside the directory:
+  `cd gui && go run .`. Building only the GUI: `go build ./...` in `gui/`.
+- The window lists snapshots (newest first) with Save snapshot, Restore
+  selected, Clear all and Refresh; confirms mirror the CLI's huh prompts.
+  If config is missing it tells you to run `huijata init` from the CLI first.
 
 ## Planned
 

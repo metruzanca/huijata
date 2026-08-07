@@ -2,3 +2,4 @@
 config.toml
 snapshots
 save_files_examples
+gui/*.exe
