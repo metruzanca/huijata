@@ -75,14 +75,29 @@ func (u *ui) build() {
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			s := u.snaps[id]
-			box := obj.(*fyne.Container).Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
+			stack := obj.(*fyne.Container)
+			bg := stack.Objects[0].(*canvas.Rectangle)
+			if id == u.selected {
+				bg.FillColor = theme.Color(theme.ColorNamePrimary)
+			} else {
+				bg.FillColor = theme.Color(theme.ColorNameButton)
+			}
+			bg.Refresh()
+			box := stack.Objects[1].(*fyne.Container).Objects[0].(*fyne.Container)
 			box.Objects[0].(*widget.Label).SetText(shortDesc(s.Description, 60))
 			box.Objects[1].(*widget.Label).SetText(s.CreatedAt.Format("2006-01-02 15:04:05"))
 		},
 	)
 	u.selected = -1
 	u.list.OnSelected = func(id widget.ListItemID) {
-		u.selected = id
+		if u.selected != id {
+			old := u.selected
+			u.selected = id
+			if old >= 0 {
+				u.list.RefreshItem(old)
+			}
+			u.list.RefreshItem(id)
+		}
 		u.setStatus("")
 	}
 
@@ -131,6 +146,8 @@ func (u *ui) refresh() {
 		u.list.Refresh()
 		return
 	}
+	u.selected = -1
+	u.list.UnselectAll()
 	u.list.Refresh()
 	u.setStatus(fmt.Sprintf("%d snapshot(s)", len(u.snaps)))
 }
