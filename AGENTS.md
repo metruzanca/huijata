@@ -35,6 +35,40 @@ Meta-progression persists:
 `save_files_examples/` (gitignored) holds three snapshots for reference:
 `0_before_new_game`, `1_new_game`, `2_after_death`.
 
+## `.salakieli` encryption
+
+The `.salakieli` files are AES-128 in CTR mode. The key and IV are the first
+16 bytes of two fixed passphrase strings; which pair a file uses depends on
+the **kind of data it holds**, not its name:
+
+| File | Key | IV |
+| --- | --- | --- |
+| `stats/_stats.salakieli`, `stats/_streaks.salakieli` | `SecretsOfTheAllSeeing` | `ThreeEyesAreWatchingYou` |
+| `session_numbers.salakieli`, `persistent/magic_numbers.salakieli` | `KnowledgeIsTheHighestOfTheHighest` | `WhoWouldntGiveEverythingForTrueKnowledge` |
+| `player.salakieli` | `WeSeeATrueSeekerOfKnowledge` | `YouAreSoCloseToBeingEnlightened` |
+| `world_state.salakieli` | `TheTruthIsThatThereIsNothing` | `MoreValuableThanKnowledge` |
+
+`internal/salakieli.DecryptFile` handles these (CTR makes encrypt and decrypt
+the same operation). CTR with a fixed key/IV means two files sharing a
+passphrase also share their keystream, which is how the `_stats`/`_streaks`
+and `session_numbers`/`magic_numbers` pairs were identified.
+
+`data.wak` is **not** encrypted in current Noita builds (older builds used an
+LCG-derived key), so `internal/noitadata` reads it directly.
+
+## Stats
+
+`huijata stats` decrypts `stats/_stats.salakieli` and prints the player's
+lifetime, best-run and last-session stats plus top tracked kills.
+
+The decrypted file is `<GameStats>` XML: a `KEY_VALUE_STATS` block of
+`<E key="..." value="..."/>` pairs (enemy names and `action_*` spell casts)
+followed by `session`, `highest`, `global`, `prev_best` blocks whose stats
+are XML attributes (`death_count`, `enemies_killed`, `gold`, `playtime_str`,
+etc.). `internal/stats.Parse` turns it into structs; `stats.Load` does the
+decrypt + parse from a save path. `internal/player` already handles
+`player.xml` the same way.
+
 ## Config
 
 `internal/config/config.go` persists settings to `config.toml`:
@@ -121,7 +155,8 @@ that don't resolve fall back to the raw id in `wands show`.
 - Layout: `cmd/` for cobra commands, `internal/config/` for the config
   package, `internal/snapshots/` for snapshot file logic,
   `internal/noitadata/` for game-data reading (wak, spell names),
-  `internal/player/` for player.xml parsing.
+  `internal/player/` for player.xml parsing, `internal/salakieli/` for
+  `.salakieli` decryption, `internal/stats/` for stats XML parsing.
 - Verify with `go build ./...`, `go test ./...`, `go vet ./...`.
 
 ## Planned
