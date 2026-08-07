@@ -63,13 +63,14 @@ func (u *ui) build() {
 	u.list = widget.NewList(
 		func() int { return len(u.snaps) },
 		func() fyne.CanvasObject {
-			desc := widget.NewLabel("")
+			desc := widget.NewLabel("Snapshot description")
 			desc.Truncation = fyne.TextTruncateEllipsis
-			when := widget.NewLabel("")
+			when := widget.NewLabel("2026-01-01 00:00:00")
 			when.Truncation = fyne.TextTruncateEllipsis
 			when.TextStyle = fyne.TextStyle{Monospace: true}
 			bg := canvas.NewRectangle(theme.Color(theme.ColorNameButton))
 			bg.CornerRadius = theme.Size(theme.SizeNameSelectionRadius)
+			bg.SetMinSize(fyne.NewSize(1, desc.MinSize().Height+when.MinSize().Height+theme.Padding()*3))
 			return container.NewStack(bg, container.NewPadded(container.NewVBox(desc, when)))
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
