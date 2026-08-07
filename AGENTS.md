@@ -197,9 +197,14 @@ and `godotenv` loading as the CLI. It's a nested module with
   on PATH and `CGO_ENABLED=1`.
 - Because `gui/` is its own module, run it from inside the directory:
   `cd gui && go run .`. Building only the GUI: `go build ./...` in `gui/`.
-- The window lists snapshots (newest first) with Save snapshot, Restore
-  selected, Clear all and Refresh; confirms mirror the CLI's huh prompts.
-  If config is missing it tells you to run `huijata init` from the CLI first.
+  In dev the GUI steps up to the repo root when it finds no `.env` in its own
+  directory, so it loads the same `.env`/config as the CLI (which runs from
+  the repo root, where `HUIJATA_CONFIG_PATH="."` is CWD-relative).
+- The window lists snapshots (newest first) with Init config, Save snapshot,
+  Restore selected, Clear all and Refresh; confirms mirror the CLI's huh
+  prompts. The Init config button is a Fyne version of `huijata init`: it
+  offers the guessed game folder or a folder picker and writes the config.
+  Both use `config.GuessGamePath()`/`config.DirExists()`.
 
 ## Planned
 

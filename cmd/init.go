@@ -3,9 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/charmbracelet/huh"
 	"github.com/metruzanca/huijata/internal/config"
@@ -21,10 +19,10 @@ it in huijata's config file so later commands know where to look.`,
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
-	guess := defaultSavePath()
+	guess := config.GuessGamePath()
 
 	path := guess
-	if guess != "" && dirExists(guess) {
+	if guess != "" && config.DirExists(guess) {
 		useGuess := true
 		err := huh.NewForm(
 			huh.NewGroup(
@@ -56,7 +54,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 					Placeholder(guess).
 					Value(&path).
 					Validate(func(s string) error {
-						if !dirExists(s) {
+						if !config.DirExists(s) {
 							return fmt.Errorf("%q is not a directory", s)
 						}
 						return nil
@@ -88,36 +86,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintf(cmd.OutOrStdout(), "Game folder saved to %s\n", cfgPath)
 	return nil
-}
-
-// defaultSavePath guesses where Noita keeps its game folder for the current OS.
-func defaultSavePath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
-	}
-	switch runtime.GOOS {
-	case "windows":
-		return filepath.Join(home, "AppData", "LocalLow", "Nolla_Games_Noita")
-	case "darwin":
-		return filepath.Join(home, "Library", "Application Support", "Steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita")
-	default:
-		candidates := []string{
-			filepath.Join(home, ".local", "share", "Steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita"),
-			filepath.Join(home, ".steam", "steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita"),
-		}
-		for _, c := range candidates {
-			if dirExists(c) {
-				return c
-			}
-		}
-		return candidates[0]
-	}
-}
-
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && info.IsDir()
 }
 
 func init() {

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -27,8 +29,16 @@ type ui struct {
 }
 
 func main() {
-	_ = godotenv.Load(".env")
-	_ = godotenv.Load("../.env")
+	// The CLI's .env lives in the repo root and sets HUIJATA_CONFIG_PATH=".",
+	// which resolves against the working directory. When the GUI is launched
+	// from gui/, step up to the repo root so relative config paths resolve the
+	// same way they do for the CLI.
+	if _, err := os.Stat(".env"); err != nil {
+		if _, err2 := os.Stat("../.env"); err2 == nil {
+			_ = os.Chdir("..")
+		}
+	}
+	_ = godotenv.Load()
 
 	a := app.New()
 	w := a.NewWindow("huijata")
@@ -63,6 +73,7 @@ func (u *ui) build() {
 		u.setStatus("")
 	}
 
+	initBtn := widget.NewButton("Init config", u.onInit)
 	saveBtn := widget.NewButton("Save snapshot", u.onSave)
 	restoreBtn := widget.NewButton("Restore selected", u.onRestore)
 	clearBtn := widget.NewButton("Clear all", u.onClear)
@@ -70,7 +81,7 @@ func (u *ui) build() {
 
 	u.win.SetContent(container.NewBorder(
 		container.NewVBox(u.pathLabel, u.status),
-		container.NewHBox(saveBtn, restoreBtn, clearBtn, refreshBtn),
+		container.NewHBox(initBtn, saveBtn, restoreBtn, clearBtn, refreshBtn),
 		nil,
 		nil,
 		u.list,
@@ -87,7 +98,7 @@ func (u *ui) refresh() {
 	if cfg == nil {
 		u.cfg = nil
 		u.pathLabel.SetText("")
-		u.setError("No config found. Run `huijata init` from the CLI first, then restart the app.")
+		u.setError("No config found. Use the 'Init config' button below.")
 		u.list.Refresh()
 		return
 	}
@@ -192,6 +203,60 @@ func (u *ui) onClear() {
 			u.setStatus(fmt.Sprintf("Deleted %d snapshot(s).", deleted))
 		},
 		u.win)
+}
+
+func (u *ui) onInit() {
+	guess := config.GuessGamePath()
+	if guess != "" && config.DirExists(guess) {
+		dialog.ShowCustomConfirm("Found your Noita game folder",
+			"Yes, save it",
+			"Choose another",
+			container.NewVBox(widget.NewLabel("Is this it?"), widget.NewLabel(guess)),
+			func(ok bool) {
+				if ok {
+					u.saveConfig(guess)
+					return
+				}
+				u.pickGameFolder()
+			}, u.win)
+		return
+	}
+	u.pickGameFolder()
+}
+
+func (u *ui) pickGameFolder() {
+	dialog.NewFolderOpen(func(uri fyne.ListableURI, err error) {
+		if err != nil {
+			u.setError("Failed to browse for game folder: " + err.Error())
+			return
+		}
+		if uri == nil {
+			return
+		}
+		u.saveConfig(uri.Path())
+	}, u.win).Show()
+}
+
+func (u *ui) saveConfig(path string) {
+	if path == "" {
+		return
+	}
+	if !config.DirExists(path) {
+		u.setError(fmt.Sprintf("%q is not a directory", path))
+		return
+	}
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		u.setError("Failed to resolve path: " + err.Error())
+		return
+	}
+	cfg := &config.Config{GamePath: abs}
+	if err := cfg.Save(); err != nil {
+		u.setError("Failed to save config: " + err.Error())
+		return
+	}
+	u.refresh()
+	u.setStatus("Game folder saved: " + abs)
 }
 
 func (u *ui) setStatus(msg string) {

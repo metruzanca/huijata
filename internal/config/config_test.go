@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -88,5 +89,16 @@ func TestSaveAndLoad(t *testing.T) {
 	}
 	if got != want {
 		t.Fatalf("Path() = %q, want %q", got, want)
+	}
+}
+
+func TestGuessGamePathWindows(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("windows only")
+	}
+	t.Setenv("USERPROFILE", `C:\Users\test`)
+	want := filepath.Join(`C:\Users\test\AppData`, "LocalLow", "Nolla_Games_Noita")
+	if got := GuessGamePath(); got != want {
+		t.Fatalf("GuessGamePath() = %q, want %q", got, want)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/BurntSushi/toml"
 )
@@ -78,4 +79,36 @@ func (c *Config) Save() error {
 	}
 	defer f.Close()
 	return toml.NewEncoder(f).Encode(c)
+}
+
+// GuessGamePath guesses where Noita keeps its Nolla_Games_Noita folder for the
+// current OS, or "" if it can't be determined.
+func GuessGamePath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	switch runtime.GOOS {
+	case "windows":
+		return filepath.Join(home, "AppData", "LocalLow", "Nolla_Games_Noita")
+	case "darwin":
+		return filepath.Join(home, "Library", "Application Support", "Steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita")
+	default:
+		candidates := []string{
+			filepath.Join(home, ".local", "share", "Steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita"),
+			filepath.Join(home, ".steam", "steam", "steamapps", "compatdata", "881100", "pfx", "drive_c", "users", "steamuser", "AppData", "LocalLow", "Nolla_Games_Noita"),
+		}
+		for _, c := range candidates {
+			if DirExists(c) {
+				return c
+			}
+		}
+		return candidates[0]
+	}
+}
+
+// DirExists reports whether path is an existing directory.
+func DirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }
