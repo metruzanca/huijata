@@ -25,3 +25,8 @@ func IsSteamInstall(installDir string) bool {
 	}
 	return false
 }
+
+// IsRunning reports whether a Noita process is currently running.
+func IsRunning() bool {
+	return isRunning()
+}

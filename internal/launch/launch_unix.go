@@ -24,3 +24,8 @@ func LaunchSteam() error {
 func LaunchDirect(installDir string) error {
 	return exec.Command(filepath.Join(installDir, "noita.exe")).Start()
 }
+
+// isRunning reports whether a Noita process is currently running.
+func isRunning() bool {
+	return exec.Command("pgrep", "-x", "noita.exe").Run() == nil
+}

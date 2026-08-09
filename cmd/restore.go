@@ -19,6 +19,8 @@ kept.`,
 	RunE: runRestore,
 }
 
+var restoreYes bool
+
 func runRestore(cmd *cobra.Command, args []string) error {
 	cfg, err := loadConfig()
 	if err != nil {
@@ -37,6 +39,32 @@ func runRestore(cmd *cobra.Command, args []string) error {
 		return errors.New("no snapshots found, run `huijata save <description>` first")
 	}
 
+	var chosen snapshots.Snapshot
+	if restoreYes {
+		chosen = snaps[0]
+	} else {
+		proceed := false
+		chosen, proceed, err = selectSnapshot(snaps)
+		if err != nil {
+			return err
+		}
+		if !proceed {
+			return nil
+		}
+	}
+
+	if err := snapshots.Restore(chosen.Dir, cfg.SavePath()); err != nil {
+		return err
+	}
+
+	fmt.Fprintf(cmd.OutOrStdout(), "Restored snapshot %s: %s\n", chosen.ID, chosen.Description)
+	return maybeStartNoita(cmd, !restoreYes)
+}
+
+// selectSnapshot prompts the user to pick a snapshot and confirm the restore.
+// The bool reports whether the restore should proceed; false means the user
+// cancelled (esc or ctrl+C), in which case nothing is restored.
+func selectSnapshot(snaps []snapshots.Snapshot) (snapshots.Snapshot, bool, error) {
 	options := make([]huh.Option[string], 0, len(snaps))
 	for _, s := range snaps {
 		options = append(options, huh.NewOption(
@@ -57,9 +85,9 @@ func runRestore(cmd *cobra.Command, args []string) error {
 	)
 	if err := selectForm.Run(); err != nil {
 		if errors.Is(err, huh.ErrUserAborted) {
-			return nil
+			return snapshots.Snapshot{}, false, nil
 		}
-		return err
+		return snapshots.Snapshot{}, false, err
 	}
 
 	var chosen snapshots.Snapshot
@@ -83,22 +111,17 @@ func runRestore(cmd *cobra.Command, args []string) error {
 	)
 	if err := confirmForm.Run(); err != nil {
 		if errors.Is(err, huh.ErrUserAborted) {
-			return nil
+			return snapshots.Snapshot{}, false, nil
 		}
-		return err
+		return snapshots.Snapshot{}, false, err
 	}
 	if !confirm {
-		return nil
+		return snapshots.Snapshot{}, false, nil
 	}
-
-	if err := snapshots.Restore(chosen.Dir, cfg.SavePath()); err != nil {
-		return err
-	}
-
-	fmt.Fprintf(cmd.OutOrStdout(), "Restored snapshot %s: %s\n", chosen.ID, chosen.Description)
-	return nil
+	return chosen, true, nil
 }
 
 func init() {
+	restoreCmd.Flags().BoolVarP(&restoreYes, "yes", "y", false, "restore the latest snapshot and start Noita without asking")
 	rootCmd.AddCommand(restoreCmd)
 }

@@ -40,7 +40,7 @@ func runSave(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Fprintf(cmd.OutOrStdout(), "Saved snapshot %s: %s\n", snap.ID, snap.Description)
-	return nil
+	return maybeStartNoita(cmd, true)
 }
 
 func init() {
