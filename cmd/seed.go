@@ -77,12 +77,10 @@ func runSeed(cmd *cobra.Command, args []string) error {
 
 	lipgloss.Fprintln(out, sectionTitle.Render(fmt.Sprintf("Fungal Shifts (first 5 of %d)", len(info.Fungal))))
 	printFungalShifts(out, info.Fungal, 5, translateMaterial)
-	fmt.Fprintln(out)
+	fmt.Fprintf(out, "Hint: run 'huijata seed shifts' to see all %d fungal shifts\n\n", len(info.Fungal))
 
 	lipgloss.Fprintln(out, sectionTitle.Render("Mountain Perks"))
 	printPerkRows(out, info.PerkRows, translations)
-
-	fmt.Fprintf(out, "\nHint: run 'huijata seed shifts' to see all %d fungal shifts\n", len(info.Fungal))
 
 	return nil
 }
