@@ -157,7 +157,7 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 			}
 			displayPerks[j] = displayName
 		}
-		fmt.Fprintf(out, "%s (%d): %s\n", hmName, i+1, strings.Join(displayPerks, " • "))
+		fmt.Fprintf(out, "%-20s (%d): %s\n", hmName, i+1, strings.Join(displayPerks, " • "))
 	}
 }
 
