@@ -5,6 +5,9 @@ import (
 	"io"
 	"strings"
 
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/table"
+
 	"github.com/metruzanca/huijata/internal/noitadata"
 	"github.com/metruzanca/huijata/internal/seed"
 	"github.com/spf13/cobra"
@@ -124,7 +127,10 @@ func printFungalShifts(out io.Writer, shifts []seed.FungalShift, limit int, tran
 	if limit > len(shifts) {
 		limit = len(shifts)
 	}
-	fmt.Fprintf(out, "%-4s %-30s %-15s %-6s %-12s %-12s\n", "#", "From", "To", "Flask", "Gold→X", "Grass→X")
+
+	headers := []string{"#", "From", "To", "Flask", "Gold→X", "Grass→X"}
+
+	var rows [][]string
 	for i := 0; i < limit; i++ {
 		s := shifts[i]
 		flask := ""
@@ -137,17 +143,36 @@ func printFungalShifts(out io.Writer, shifts []seed.FungalShift, limit int, tran
 		if len(from) > 28 {
 			from = from[:28] + "…"
 		}
-		fmt.Fprintf(out, "%-4d %-30s %-15s %-6s %-12s %-12s\n",
-			i+1, from, translate(s.To), flask, translate(s.GoldToX), translate(s.GrassToX))
+		rows = append(rows, []string{
+			fmt.Sprintf("%d", i+1),
+			from,
+			translate(s.To),
+			flask,
+			translate(s.GoldToX),
+			translate(s.GrassToX),
+		})
 	}
+
+	t := table.New().
+		Border(lipgloss.HiddenBorder()).
+		Headers(headers...).
+		Rows(rows...)
+
+	fmt.Fprintln(out, t.Render())
 }
 
 func printPerkRows(out io.Writer, rows [][]string, translations map[string]string) {
 	names := loadPerkDisplayNames(translations)
+
+	headers := []string{"Holy Mountain", "Perks"}
+
+	var tableRows [][]string
 	for i, row := range rows {
 		hmName := "Holy Mountain"
 		if i < len(seed.HolyMountainNames) {
-			hmName = seed.HolyMountainNames[i]
+			hmName = fmt.Sprintf("%s (%d)", seed.HolyMountainNames[i], i+1)
+		} else {
+			hmName = fmt.Sprintf("Holy Mountain %d", i+1)
 		}
 		displayPerks := make([]string, len(row))
 		for j, perkID := range row {
@@ -157,8 +182,15 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 			}
 			displayPerks[j] = displayName
 		}
-		fmt.Fprintf(out, "%-20s (%d): %s\n", hmName, i+1, strings.Join(displayPerks, " • "))
+		tableRows = append(tableRows, []string{hmName, strings.Join(displayPerks, " • ")})
 	}
+
+	t := table.New().
+		Border(lipgloss.HiddenBorder()).
+		Headers(headers...).
+		Rows(tableRows...)
+
+	fmt.Fprintln(out, t.Render())
 }
 
 func loadPerkDisplayNames(translations map[string]string) map[string]string {
