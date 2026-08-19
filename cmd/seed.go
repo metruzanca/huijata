@@ -72,11 +72,8 @@ func runSeed(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintf(out, "Seed: %s\n\n", worldSeed)
 
-	lipgloss.Fprintln(out, sectionTitle.Render("Alchemic Precursor"))
-	fmt.Fprintf(out, "%s\n\n", strings.Join(translateMaterials(info.AP, translateMaterial), " • "))
-
-	lipgloss.Fprintln(out, sectionTitle.Render("Lively Concoction"))
-	fmt.Fprintf(out, "%s\n\n", strings.Join(translateMaterials(info.LC, translateMaterial), " • "))
+	lipgloss.Fprintln(out, sectionTitle.Render("Recipes"))
+	printRecipes(out, info.AP, info.LC, translateMaterial)
 
 	lipgloss.Fprintln(out, sectionTitle.Render(fmt.Sprintf("Fungal Shifts (first 5 of %d)", len(info.Fungal))))
 	printFungalShifts(out, info.Fungal, 5, translateMaterial)
@@ -163,6 +160,23 @@ func printFungalShifts(out io.Writer, shifts []seed.FungalShift, limit int, tran
 		Rows(rows...)
 
 	fmt.Fprintln(out, t.Render())
+}
+
+func printRecipes(out io.Writer, ap, lc []string, translate func(string) string) {
+	headers := []string{"Recipe", "Ingredients"}
+
+	rows := [][]string{
+		{"Alchemic Precursor", strings.Join(translateMaterials(ap, translate), "\n")},
+		{"Lively Concoction", strings.Join(translateMaterials(lc, translate), "\n")},
+	}
+
+	t := table.New().
+		Border(lipgloss.NormalBorder()).
+		Headers(headers...).
+		Rows(rows...)
+
+	fmt.Fprintln(out, t.Render())
+	fmt.Fprintln(out)
 }
 
 func printPerkRows(out io.Writer, rows [][]string, translations map[string]string) {
