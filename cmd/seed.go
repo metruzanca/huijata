@@ -159,7 +159,6 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 		if i < len(holyMountainNames) {
 			hmName = holyMountainNames[i]
 		}
-		fmt.Fprintf(out, "%s (%d):\n", hmName, i+1)
 		displayPerks := make([]string, len(row))
 		for j, perkID := range row {
 			displayName := names[perkID]
@@ -168,7 +167,7 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 			}
 			displayPerks[j] = displayName
 		}
-		fmt.Fprintf(out, "  %s\n", strings.Join(displayPerks, " • "))
+		fmt.Fprintf(out, "%s (%d): %s\n", hmName, i+1, strings.Join(displayPerks, " • "))
 	}
 }
 
