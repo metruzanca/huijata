@@ -158,7 +158,7 @@ func printFungalShifts(out io.Writer, shifts []seed.FungalShift, limit int, tran
 	}
 
 	t := table.New().
-		Border(lipgloss.HiddenBorder()).
+		Border(lipgloss.NormalBorder()).
 		Headers(headers...).
 		Rows(rows...)
 
@@ -190,7 +190,7 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 	}
 
 	t := table.New().
-		Border(lipgloss.HiddenBorder()).
+		Border(lipgloss.NormalBorder()).
 		Headers(headers...).
 		Rows(tableRows...)
 
