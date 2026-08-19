@@ -57,8 +57,6 @@ func SpellNames(installDir string) (map[string]string, error) {
 	return names, nil
 }
 
-// parseCommonCSV reads the English names for action_* keys from the game's
-// translation file.
 func parseCommonCSV(path string) (map[string]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -87,6 +85,48 @@ func parseCommonCSV(path string) (map[string]string, error) {
 		}
 	}
 	return names, nil
+}
+
+// parseAllTranslations reads all key→English name entries from the game's
+// translation file (common.csv), including perk_*, item_*, biome_*, etc.
+func parseAllTranslations(path string) (map[string]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	r := csv.NewReader(f)
+	r.FieldsPerRecord = -1
+	names := make(map[string]string)
+	for {
+		rec, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		if len(rec) < 2 {
+			continue
+		}
+		key := rec[0]
+		name := strings.TrimSpace(rec[1])
+		if key != "" && name != "" {
+			names[key] = name
+		}
+	}
+	return names, nil
+}
+
+// TranslationNames returns all translation keys → English names from the
+// game's data/translations/common.csv (including perk_*, item_*, biome_*, etc.).
+func TranslationNames(installDir string) (map[string]string, error) {
+	install, err := resolveInstall(installDir)
+	if err != nil {
+		return nil, err
+	}
+	return parseAllTranslations(filepath.Join(install, "data", "translations", "common.csv"))
 }
 
 func resolveInstall(installDir string) (string, error) {
