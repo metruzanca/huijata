@@ -36,6 +36,10 @@ func init() {
 	seedCmd.AddCommand(shiftsCmd)
 }
 
+var sectionTitle = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("99"))
+
 func runSeed(cmd *cobra.Command, args []string) error {
 	cfg, err := loadConfig()
 	if err != nil {
@@ -68,17 +72,17 @@ func runSeed(cmd *cobra.Command, args []string) error {
 
 	fmt.Fprintf(out, "Seed: %s\n\n", worldSeed)
 
-	fmt.Fprintf(out, "=== Alchemic Precursor ===\n")
+	lipgloss.Fprintln(out, sectionTitle.Render("Alchemic Precursor"))
 	fmt.Fprintf(out, "%s\n\n", strings.Join(translateMaterials(info.AP, translateMaterial), " • "))
 
-	fmt.Fprintf(out, "=== Lively Concoction ===\n")
+	lipgloss.Fprintln(out, sectionTitle.Render("Lively Concoction"))
 	fmt.Fprintf(out, "%s\n\n", strings.Join(translateMaterials(info.LC, translateMaterial), " • "))
 
-	fmt.Fprintf(out, "=== Fungal Shifts (first 5 of %d) ===\n", len(info.Fungal))
+	lipgloss.Fprintln(out, sectionTitle.Render(fmt.Sprintf("Fungal Shifts (first 5 of %d)", len(info.Fungal))))
 	printFungalShifts(out, info.Fungal, 5, translateMaterial)
 	fmt.Fprintln(out)
 
-	fmt.Fprintf(out, "=== Mountain Perks ===\n")
+	lipgloss.Fprintln(out, sectionTitle.Render("Mountain Perks"))
 	printPerkRows(out, info.PerkRows, translations)
 
 	fmt.Fprintf(out, "\nHint: run 'huijata seed shifts' to see all %d fungal shifts\n", len(info.Fungal))
@@ -117,7 +121,7 @@ func runShifts(cmd *cobra.Command, args []string) error {
 	translateMaterial := makeMaterialTranslator(translations)
 
 	fmt.Fprintf(out, "Seed: %s\n\n", worldSeed)
-	fmt.Fprintf(out, "=== All Fungal Shifts (%d) ===\n", len(info.Fungal))
+	lipgloss.Fprintln(out, sectionTitle.Render(fmt.Sprintf("All Fungal Shifts (%d)", len(info.Fungal))))
 	printFungalShifts(out, info.Fungal, len(info.Fungal), translateMaterial)
 
 	return nil
