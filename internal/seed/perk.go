@@ -35,7 +35,8 @@ func LoadPerks() ([]PerkData, error) {
 }
 
 func GeneratePerkDeck(perks []PerkData, worldSeed uint32) PerkDeck {
-	rng := NewWasmRng(worldSeed)
+	rng := &NollaPrng{}
+	rng.SetWorldSeed(worldSeed)
 	rng.SetRandomSeed(1, 2)
 
 	const minDistance = 4
