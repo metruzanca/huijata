@@ -41,24 +41,12 @@ func (r *NollaPrng) Next() float64 {
 	return r.seed / 2147483647.0
 }
 
-func (r *NollaPrng) NextU() uint32 {
-	r.Next()
-	return uint32(r.seed * 4.656612875e-10 * 2147483645.0)
-}
-
 func jsToInt32(f float64) uint32 {
 	if math.IsNaN(f) || f == 0 {
 		return 0
 	}
 	u := uint64(f) % (1 << 32)
 	return uint32(int32(u))
-}
-
-func (r *NollaPrng) SetRandomFromWorldSeed(s float64) {
-	r.seed = s
-	if r.seed >= 2147483647.0 {
-		r.seed = s * 0.5
-	}
 }
 
 func (r *NollaPrng) SetRandomSeed(x, y float64) {
