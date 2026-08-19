@@ -168,15 +168,13 @@ func printFungalShifts(out io.Writer, shifts []seed.FungalShift, limit int, tran
 func printPerkRows(out io.Writer, rows [][]string, translations map[string]string) {
 	names := loadPerkDisplayNames(translations)
 
-	headers := []string{"Holy Mountain", "Perks"}
+	headers := []string{"#", "Holy Mountain", "Perks"}
 
 	var tableRows [][]string
 	for i, row := range rows {
 		hmName := "Holy Mountain"
 		if i < len(seed.HolyMountainNames) {
-			hmName = fmt.Sprintf("%s (%d)", seed.HolyMountainNames[i], i+1)
-		} else {
-			hmName = fmt.Sprintf("Holy Mountain %d", i+1)
+			hmName = seed.HolyMountainNames[i]
 		}
 		displayPerks := make([]string, len(row))
 		for j, perkID := range row {
@@ -186,7 +184,7 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 			}
 			displayPerks[j] = displayName
 		}
-		tableRows = append(tableRows, []string{hmName, strings.Join(displayPerks, "\n")})
+		tableRows = append(tableRows, []string{fmt.Sprintf("%d", i+1), hmName, strings.Join(displayPerks, "\n")})
 	}
 
 	t := table.New().
