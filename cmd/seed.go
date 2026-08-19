@@ -186,7 +186,7 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 			}
 			displayPerks[j] = displayName
 		}
-		tableRows = append(tableRows, []string{hmName, strings.Join(displayPerks, " • ")})
+		tableRows = append(tableRows, []string{hmName, strings.Join(displayPerks, "\n")})
 	}
 
 	t := table.New().
