@@ -159,6 +159,7 @@ func printFungalShifts(out io.Writer, shifts []seed.FungalShift, limit int, tran
 
 	t := table.New().
 		Border(lipgloss.NormalBorder()).
+		BorderRow(true).
 		Headers(headers...).
 		Rows(rows...)
 
