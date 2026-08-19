@@ -28,16 +28,6 @@ var shiftsCmd = &cobra.Command{
 	RunE:  runShifts,
 }
 
-var holyMountainNames = []string{
-	"Coal Pits",
-	"Snowy Depths",
-	"Frozen Floor / Secret",
-	"Mine",
-	"Dark Cave",
-	"Temple of the Art",
-	"Pyramid",
-}
-
 func init() {
 	rootCmd.AddCommand(seedCmd)
 	seedCmd.AddCommand(shiftsCmd)
@@ -156,8 +146,8 @@ func printPerkRows(out io.Writer, rows [][]string, translations map[string]strin
 	names := loadPerkDisplayNames(translations)
 	for i, row := range rows {
 		hmName := "Holy Mountain"
-		if i < len(holyMountainNames) {
-			hmName = holyMountainNames[i]
+		if i < len(seed.HolyMountainNames) {
+			hmName = seed.HolyMountainNames[i]
 		}
 		displayPerks := make([]string, len(row))
 		for j, perkID := range row {

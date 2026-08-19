@@ -9,16 +9,16 @@ import (
 var perksJSON []byte
 
 type PerkData struct {
-	ID                       string  `json:"id"`
-	UIName                   string  `json:"ui_name"`
-	UIDescription            string  `json:"ui_description"`
-	Stackable                bool    `json:"stackable"`
-	StackableIsRare          bool    `json:"stackable_is_rare"`
-	StackableMaximum         int     `json:"stackable_maximum"`
-	MaxInPerkPool            int     `json:"max_in_perk_pool"`
-	StackableHowOftenReappears int   `json:"stackable_how_often_reappears"`
-	NotInDefaultPerkPool     bool    `json:"not_in_default_perk_pool"`
-	RemoveOtherPerks         []string `json:"remove_other_perks,omitempty"`
+	ID                         string   `json:"id"`
+	UIName                     string   `json:"ui_name"`
+	UIDescription              string   `json:"ui_description"`
+	Stackable                  bool     `json:"stackable"`
+	StackableIsRare            bool     `json:"stackable_is_rare"`
+	StackableMaximum           int      `json:"stackable_maximum"`
+	MaxInPerkPool              int      `json:"max_in_perk_pool"`
+	StackableHowOftenReappears int      `json:"stackable_how_often_reappears"`
+	NotInDefaultPerkPool       bool     `json:"not_in_default_perk_pool"`
+	RemoveOtherPerks           []string `json:"remove_other_perks,omitempty"`
 }
 
 type PerkDeck struct {
@@ -160,14 +160,14 @@ func getNextPerk(deck []string, nextIndex *int) string {
 	}
 }
 
-var holyMountainNames = []string{
+var HolyMountainNames = []string{
+	"Mines",
 	"Coal Pits",
 	"Snowy Depths",
-	"Frozen Floor / Secret",
-	"Mine",
-	"Dark Cave",
+	"Hiisi Base",
+	"Underground Jungle",
+	"The Vault",
 	"Temple of the Art",
-	"Pyramid",
 }
 
 func PerkRowsForSeed(worldSeed uint32) ([][]string, error) {
